@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./styles/chat_css.css"/>
+    <title>AnonyChat - Secret Room</title>
+  </head>
+  <body>
+    <header class="chat-header">
+      <a href="index.html"><img src="./images/logo-light.png" alt="AnonyChat Logo" class="logo" /></a>
+      <div class="room-id">
+        <span>Room ID:</span>
+        <span id="room-id"><strong>ROOM ID</strong></span>
+        <img src="./images/copy.png" alt="Copy Room ID" class="copy-icon" />
+      </div>
+      <div class="header-buttons">
+        <button class="toggle-delete hidden" id="toggle-delete">Vanish Mode</button>
+        <button class="delete-chat hidden">Delete Chat</button>
+        <button class="leave-chat">Leave Chat</button>
+      </div>
+    </header>
+    <div class="chat-container">
+      <div class="messages-container" id="messages"></div>
+      <div class="message-input-container">
+        <input type="file" id="fileInput" class="hidden" />
+        <button class="file-input" id="file-input" aria-label="Attach File">
+          <img
+            src="./images/attach.png"
+            alt="Attach File"
+            class="attach-icon"
+          />
+        </button>
+        <input type="text" autocomplete="off" autocapitalize="on" id="messageInput" placeholder="Type a message..."/>
+        <button class="send-button" id="sendButton" aria-label="Send Message">
+          <img src="./images/send.png" alt="Send Message" class="send-icon" />
+        </button>
+      </div>
+    </div>
+    <script src="./scripts/chat_js.js"></script>
+  </body>
+</html>

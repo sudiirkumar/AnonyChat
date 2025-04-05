@@ -1,57 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <title>WebSocket Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnonyChat - Start Chatting</title>
+    <link rel="stylesheet" href="./styles/index_style.css">
 </head>
 <body>
-  <div class="chat-container">
-    <div class="messages-container" id="messages"></div>
-    <div class="message-input-container">
-      <input type="text" id="messageInput" placeholder="Type a message...">
-      <button id="sendButton">Send</button>
-    </div>
-  </div>
-
-  <script>
-    const messagesDiv = document.getElementById('messages');
-    const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendButton');
-    const ws = new WebSocket('ws://localhost:3000');
-  
-    ws.addEventListener('message', (event) => {
-      const message = event.data;
-      displayMessage(message);
-    });
-  
-    sendButton.addEventListener('click', () => {
-      const message = messageInput.value;
-      ws.send(message);
-      displayMessage(message, true);
-      messageInput.value = '';
-    });
-  
-    function displayMessage(message, isSender = false) {
-      const messageContainer = document.createElement('div');
-      const messageElement = document.createElement('div');
-      messageElement.textContent = message;
-      
-      messageContainer.classList.add('message-container');
-      
-      if (isSender) {
-        messageContainer.classList.add('sender-message-container');
-        messageElement.classList.add('message-bubble', 'sender-message-bubble');
-      } else {
-        messageElement.classList.add('message-bubble');
-      }
-      
-      messageContainer.appendChild(messageElement);
-      messagesDiv.appendChild(messageContainer);
-      
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-  </script>
+    <header class="header">
+        <img src="./images/logo-light.png" alt="AnonyChat Logo" class="logo">
+        <nav>
+            <a href="about.html" class="about-link">About Us</a>
+        </nav>
+    </header>
+    <main class="main-content">
+        <h1 class="start-chat-text">Start Chatting Now</h1>
+        <button class="chat-button" id="create-chat">Create a Private Chat Room</button>
+        <div class="join-container" id="join-container">
+            <input type="text" id="room-code" placeholder="Enter Room Code" class="hidden">
+            <button class="join-chat" id="join-chat">Join with a Room Code</button>
+        </div>
+        <p class="footer-text">🔒 Your privacy matters. No logs. No traces. 🚀</p>
+    </main>
+    <script src="./scripts/index_js.js"></script>
 </body>
 </html>

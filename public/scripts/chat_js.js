@@ -7,13 +7,26 @@ const leaveButton = document.querySelector(".leave-chat");
 const deleteButton = document.querySelector(".delete-chat");
 const fileInput = document.getElementById("file-input");
 const toggleVanish = document.getElementById("toggle-delete");
-const ws = new WebSocket("ws://localhost:3000");
+const ws = new WebSocket("ws://192.168.1.47:3000");
 
-let currentUsername = `user-${Math.floor(
-    1000000000 + Math.random() * 9000000000
-)}`;
+const SECRET_KEY = "MySecretRoomKey123"; // You can dynamically generate this from roomId
 
+let currentUsername = `user-${Math.floor(1000000000 + Math.random() * 9000000000)}`;
 let vanishMode = false;
+
+// AES Encryption/Decryption
+function encryptMessage(message) {
+    return CryptoJS.AES.encrypt(message, SECRET_KEY).toString();
+}
+
+function decryptMessage(ciphertext) {
+    try {
+        const bytes = CryptoJS.AES.decrypt(ciphertext, SECRET_KEY);
+        return bytes.toString(CryptoJS.enc.Utf8) || ciphertext;
+    } catch (e) {
+        return ciphertext;
+    }
+}
 
 function getRoomIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -41,7 +54,6 @@ function setRoomId() {
 
 setRoomId();
 
-// match the room ID in the URL with the one in the WebSocket connection if not matched close the connection
 ws.addEventListener("open", () => {
     const roomId = getRoomIdFromURL();
     if (roomId) {
@@ -54,7 +66,9 @@ ws.addEventListener("open", () => {
 
 ws.addEventListener("message", (event) => {
     const message = event.data;
-    if (message.startsWith("data:image/")) {
+    dec_message = decryptMessage(message);
+    if (dec_message.startsWith("data:image/")) {
+        const message = dec_message;
         const imageContainer = document.createElement("div");
         const imageElement = document.createElement("img");
         imageElement.src = message;
@@ -74,12 +88,9 @@ ws.addEventListener("message", (event) => {
                 setTimeout(() => imageElement.remove(), 300);
             }, 5000);
         }
-    }
-    // {"type":"join","roomId":"83479","username":"user-2845582552"}
-    else if (message.startsWith("{")) {
+    } else if (message.startsWith("{")) {
         const data = JSON.parse(message);
         if (data.type === "delete") {
-            // alert("Chat deleted by admin");
             window.location.href = "index.html";
         }
         if (data.type === "leave") {
@@ -95,56 +106,50 @@ ws.addEventListener("message", (event) => {
                 toggleVanish.style.borderColor = "black";
                 messageInput.style.backgroundColor = "#f8f9fa";
                 messageInput.style.color = "black";
-                // alert("Vanish mode disabled.");
-                vanishMode = !vanishMode;
-                displayMessage(vanishMessage);
-            }
-            else {
+                vanishMode = false;
+            } else {
                 vanishMessage = `<i><b>${data.username} has enabled vanish mode.</b></i>`;
                 toggleVanish.style.backgroundColor = "black";
                 toggleVanish.style.color = "white";
                 toggleVanish.style.borderColor = "white";
                 messageInput.style.backgroundColor = "black";
                 messageInput.style.color = "white";
-                // alert("Vanish mode enabled.");
-                displayMessage(vanishMessage);
-                vanishMode = !vanishMode;
+                vanishMode = true;
             }
-            
+            displayMessage(vanishMessage);
         }
         if (data.type === "join") {
             const joinMessage = `<i><b>${data.username} has joined the room.</b></i>`;
             displayMessage(joinMessage);
         }
-    }
-    else {
-        displayMessage(message);
+    } else {
+        const decrypted = decryptMessage(message);
+        displayMessage(decrypted);
     }
 });
 
 sendButton.addEventListener("click", () => {
     if (messageInput.value.trim()) {
         const message = messageInput.value.trim();
-        ws.send(message);
+        const encrypted = encryptMessage(message);
+        ws.send(encrypted);
         displayMessage(message, true);
         messageInput.value = "";
     }
 });
+
 messageInput.addEventListener("keydown", (e) => {
     if (messageInput.value.trim() && e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         const message = messageInput.value.trim();
         const now = new Date();
-        const timeString = now.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-        const formattedMessage = `${message}</br>
-        <small><i>${timeString} • ${currentUsername}</i></small>`;
-        ws.send(formattedMessage);
+        const timeString = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const formattedMessage = `${message}</br><small><i>${timeString} • ${currentUsername}</i></small>`;
+        const encryptedMessage = encryptMessage(formattedMessage);
+        ws.send(encryptedMessage);
+
         const sender = "You";
-        const sentMessage = `${message}</br>
-        <small><i>${timeString} • ${sender}</i></small>`;
+        const sentMessage = `${message}</br><small><i>${timeString} • ${sender}</i></small>`;
         displayMessage(sentMessage, true);
         messageInput.value = "";
     }
@@ -168,86 +173,97 @@ function displayMessage(message, isSender = false) {
     messagesDiv.appendChild(messageContainer);
 
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
     if (vanishMode) {
-            // updateProgress(messageElement, 30, isSender);
-            let count = 100;
-            const interval = setInterval(() => {
-                updateProgress(messageElement, count, isSender);
-                count--;
-                if (count < 0) {
-                    clearInterval(interval);
-                }
-                console.log(count);
-            }
-            , 50);
-            setTimeout(() => {
-                messageElement.style.opacity = "0";
-                setTimeout(() => messageElement.remove(), 300);
-            }, 5000);
+        let count = 100;
+        const interval = setInterval(() => {
+            updateProgress(messageElement, count, isSender);
+            count--;
+            if (count < 0) clearInterval(interval);
+        }, 50);
+        setTimeout(() => {
+            messageElement.style.opacity = "0";
+            setTimeout(() => messageElement.remove(), 300);
+        }, 5000);
     }
 }
 
 function updateProgress(messageElement, percent, isSender = false) {
-    const progressBar = messageElement;
-        if(isSender){
-            progressBar.style.background = `linear-gradient(90deg, #007bff ${percent}%,rgb(91, 170, 255) ${percent}%)`;
-        }
-        else{
-            progressBar.style.background = `linear-gradient(90deg,rgb(0, 0, 0) ${percent}%,rgb(115, 115, 115) ${percent}%)`;
-        }
+    if (isSender) {
+        messageElement.style.background = `linear-gradient(90deg, #007bff ${percent}%, rgb(91, 170, 255) ${percent}%)`;
+    } else {
+        messageElement.style.background = `linear-gradient(90deg, rgb(0, 0, 0) ${percent}%, rgb(115, 115, 115) ${percent}%)`;
+    }
 }
 
-// Leave Chat
 leaveButton.addEventListener("click", () => {
     if (confirm("Are you sure you want to leave this chat?")) {
-        ws.send(
-            JSON.stringify({
-                type: "leave",
-                roomId: getRoomIdFromURL(),
-                username: currentUsername,
-            })
-        );
+        ws.send(JSON.stringify({ type: "leave", roomId: getRoomIdFromURL(), username: currentUsername }));
         window.location.href = "index.html";
     }
 });
 
-// Delete Chat Button
-deleteButton.addEventListener("click", () => {
+deleteButton.addEventListener("click", async () => {
     if (confirm("Are you sure you want to delete this chat?")) {
-        localStorage.removeItem("roomId");
-        ws.send(JSON.stringify({ type: "delete", roomId: getRoomIdFromURL() }));
-        window.location.href = "index.html";
+        try {
+            const response = await fetch('http://192.168.1.47:3000/delete-room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Room has been deleted!');
+            } else {
+                console.error('❌ Failed to delete room:', data.error);
+            }
+
+            ws.send(JSON.stringify({ type: "delete", roomId: getRoomIdFromURL() }));
+            window.location.href = "index.html";
+        } catch (error) {
+            console.error('🚨 Error deleting room:', error);
+        }
     }
 });
 
-// Copy Room ID to Clipboard
-copyIcon.addEventListener("click", async () => {
+copyIcon.addEventListener("click", () => {
+    const roomId = getRoomIdFromURL();
+    const textarea = document.createElement("textarea");
+    textarea.value = roomId;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+
+    textarea.focus();
+    textarea.select();
+
     try {
-        await navigator.clipboard.writeText(getRoomIdFromURL());
-        alert("Room ID copied to clipboard!");
+        const successful = document.execCommand("copy");
+        alert(successful ? "Room ID copied to clipboard!" : "Failed to copy Room ID.");
     } catch (err) {
-        console.error("Failed to copy:", err);
+        console.error("❌ Copy failed:", err);
+        alert("Copy not supported in this browser.");
     }
+
+    document.body.removeChild(textarea);
 });
-// on clicking the file input, open the file picker
+
 fileInput.addEventListener("click", () => {
     document.getElementById("fileInput").click();
 });
-// select only image files and send them to the server
+
 document.getElementById("fileInput").addEventListener("change", (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onload = function (e) {
             const imageData = e.target.result;
-            ws.send(imageData);
+            ws.send(encryptMessage(imageData));
             const now = new Date();
-            const timeString = now.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-            });
+            const timeString = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
             const imageDesc = `<i><b>${currentUsername} sent an image at ${timeString}</b></i>`;
             ws.send(imageDesc);
+
             const imageContainer = document.createElement("div");
             const imageElement = document.createElement("img");
             imageElement.src = imageData;
@@ -257,10 +273,10 @@ document.getElementById("fileInput").addEventListener("change", (event) => {
             imageElement.style.borderRadius = "10px";
             imageElement.style.margin = "10px";
             imageElement.classList.add("sent-image");
+
             imageContainer.appendChild(imageElement);
             imageContainer.style.display = "flex";
             imageContainer.style.justifyContent = "flex-end";
-            imageContainer.style.alignItems = "flex-end";
             messagesDiv.appendChild(imageContainer);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
@@ -278,24 +294,19 @@ document.getElementById("fileInput").addEventListener("change", (event) => {
 });
 
 toggleVanish.addEventListener("click", () => {
+    ws.send(JSON.stringify({ type: "vanish", roomId: getRoomIdFromURL(), username: currentUsername }));
+    vanishMode = !vanishMode;
     if (vanishMode) {
-        vanishMode = false;
-        toggleVanish.style.backgroundColor = "white";
-        toggleVanish.style.color = "black";
-        toggleVanish.style.borderColor = "black";
-        messageInput.style.backgroundColor = "#f8f9fa";
-        messageInput.style.color = "black";
-        // alert("Vanish mode disabled.");
-        ws.send(JSON.stringify({ type: "vanish", roomId: getRoomIdFromURL(), username: currentUsername }));
-    } else {
-        vanishMode = true;
         toggleVanish.style.backgroundColor = "black";
         toggleVanish.style.color = "white";
         toggleVanish.style.borderColor = "white";
         messageInput.style.backgroundColor = "black";
         messageInput.style.color = "white";
-        // alert("Vanish mode enabled.");
-        ws.send(JSON.stringify({ type: "vanish", roomId: getRoomIdFromURL(), username: currentUsername }));
+    } else {
+        toggleVanish.style.backgroundColor = "white";
+        toggleVanish.style.color = "black";
+        toggleVanish.style.borderColor = "black";
+        messageInput.style.backgroundColor = "#f8f9fa";
+        messageInput.style.color = "black";
     }
-}
-);
+});

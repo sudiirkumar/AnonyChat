@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./styles/chat_css.css"/>
     <title>AnonyChat - Secret Room</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   </head>
   <body>
     <header class="chat-header">
       <a href="index.html"><img src="./images/logo-light.png" alt="AnonyChat Logo" class="logo" /></a>
       <div class="room-id">
-        <span>Room ID:</span>
+        <span id="room-id-text">Room ID:</span>
         <span id="room-id"><strong>ROOM ID</strong></span>
         <img src="./images/copy.png" alt="Copy Room ID" class="copy-icon" />
       </div>

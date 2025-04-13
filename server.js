@@ -3,15 +3,33 @@ const http = require('http');
 const express = require('express');
 const path = require('path');
 const os = require('os');
-const cors = require('cors'); // 🔥 Import cors
+const cors = require('cors'); 
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+// Get local IP for LAN
+function getLocalIPAddress() {
+  const interfaces = os.networkInterfaces();
+  for (let iface in interfaces) {
+    for (let ifaceDetails of interfaces[iface]) {
+      if (
+        ifaceDetails.family === 'IPv4' &&
+        !ifaceDetails.internal &&
+        ifaceDetails.address.startsWith('192.')
+      ) {
+        return ifaceDetails.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+const IP = getLocalIPAddress();
+
 // ✅ Enable CORS for all routes and origins
 app.use(cors({
-  origin: 'http://192.168.1.47:5500', // or '*' for all, but safer to restrict
+  origin: `http://${IP}:5500`, // or '*' for all, but safer to restrict
   methods: ['GET', 'POST'],
   credentials: true
 }));
@@ -53,7 +71,7 @@ wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     wss.clients.forEach((client) => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
-        console.log(`📩 Message from client: ${message.length > 50 ? message.subarray(0,50) : message}`);
+        console.log(`📩 Message from client: ${message.length > 70 ? message.subarray(0,70) : message}`);
         client.send(message.toString());
       }
     });
@@ -64,26 +82,6 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Get local IP for LAN
-function getLocalIPAddress() {
-  const interfaces = os.networkInterfaces();
-  for (let iface in interfaces) {
-    for (let ifaceDetails of interfaces[iface]) {
-      if (
-        ifaceDetails.family === 'IPv4' &&
-        !ifaceDetails.internal &&
-        ifaceDetails.address.startsWith('192.')
-      ) {
-        return ifaceDetails.address;
-      }
-    }
-  }
-  return 'localhost';
-}
-
-const PORT = 3000;
-const IP = getLocalIPAddress();
-
-server.listen(PORT, () => {
-  console.log(`✅ Server running at http://${IP}:${PORT}`);
+server.listen(3000, () => {
+  console.log(`✅ Server running at http://${IP}:3000`);
 });

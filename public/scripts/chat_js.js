@@ -7,9 +7,12 @@ const leaveButton = document.querySelector(".leave-chat");
 const deleteButton = document.querySelector(".delete-chat");
 const fileInput = document.getElementById("file-input");
 const toggleVanish = document.getElementById("toggle-delete");
-const ws = new WebSocket("ws://192.168.1.47:3000");
 
-const SECRET_KEY = "MySecretRoomKey123"; // You can dynamically generate this from roomId
+const IP = "192.168.1.47"; // Replace with your local IP address
+const ws = new WebSocket(`ws://${IP}:3000`);
+
+//generate SECRET_KEY from roomId
+const SECRET_KEY = CryptoJS.SHA256(getRoomIdFromURL).toString();
 
 let currentUsername = `user-${Math.floor(1000000000 + Math.random() * 9000000000)}`;
 let vanishMode = false;
@@ -72,8 +75,8 @@ ws.addEventListener("message", (event) => {
         const imageContainer = document.createElement("div");
         const imageElement = document.createElement("img");
         imageElement.src = message;
-        imageElement.style.width = "200px";
-        imageElement.style.height = "200px";
+        imageElement.style.width = "400px";
+        imageElement.style.height = "400px";
         imageElement.style.objectFit = "cover";
         imageElement.style.borderRadius = "10px";
         imageElement.style.margin = "10px";
@@ -81,6 +84,19 @@ ws.addEventListener("message", (event) => {
         imageContainer.appendChild(imageElement);
         messagesDiv.appendChild(imageContainer);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        //on click, open in new tab
+        imageElement.addEventListener("click", () => {
+            const newWindow = window.open();
+            newWindow.document.write(`<html><head><title>Image</title></head><body><img src="${message}" style="height:100%; width:auto;"></body></html>`);
+            newWindow.document.close();
+
+            //on clicking anywhere, close the new tab
+            newWindow.addEventListener("click", () => {
+                newWindow.close();
+            });
+            
+        });
 
         if (vanishMode) {
             setTimeout(() => {
@@ -206,7 +222,7 @@ leaveButton.addEventListener("click", () => {
 deleteButton.addEventListener("click", async () => {
     if (confirm("Are you sure you want to delete this chat?")) {
         try {
-            const response = await fetch('http://192.168.1.47:3000/delete-room', {
+            const response = await fetch(`http://${IP}:3000/delete-room`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const roomCodeInput = document.getElementById('room-code');
 
     const IP = "anonychat-no20.onrender.com"; // Replace with your local IP address
-    const ws = new WebSocket(`ws://anonychat-no20.onrender.com`);
+    const ws = new WebSocket(`wss://anonychat-no20.onrender.com`);
 
     // Create new room
     createChatBtn.addEventListener('click', async () => {

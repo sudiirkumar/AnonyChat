@@ -10,7 +10,7 @@ const toggleVanish = document.getElementById("toggle-delete");
 
 const IP = "anonychat-no20.onrender.com"; // Replace with your local IP address
 // const ws = new WebSocket(`w`);
-const ws = new WebSocket(`ws://anonychat-no20.onrender.com`);
+const ws = new WebSocket(`wss://anonychat-no20.onrender.com`);
 
 //generate SECRET_KEY from roomId
 const SECRET_KEY = CryptoJS.SHA256(getRoomIdFromURL).toString();

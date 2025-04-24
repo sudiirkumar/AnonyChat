@@ -8,8 +8,9 @@ const deleteButton = document.querySelector(".delete-chat");
 const fileInput = document.getElementById("file-input");
 const toggleVanish = document.getElementById("toggle-delete");
 
-const IP = "192.168.67.223"; // Replace with your local IP address
-const ws = new WebSocket(`ws://${IP}:3000`);
+const IP = "anonychat-no20.onrender.com"; // Replace with your local IP address
+// const ws = new WebSocket(`w`);
+const ws = new WebSocket(`ws://anonychat-no20.onrender.com`);
 
 //generate SECRET_KEY from roomId
 const SECRET_KEY = CryptoJS.SHA256(getRoomIdFromURL).toString();
@@ -222,7 +223,7 @@ leaveButton.addEventListener("click", () => {
 deleteButton.addEventListener("click", async () => {
     if (confirm("Are you sure you want to delete this chat?")) {
         try {
-            const response = await fetch(`http://${IP}:3000/delete-room`, {
+            const response = await fetch(`http://${IP}/delete-room`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });

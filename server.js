@@ -25,11 +25,12 @@ function getLocalIPAddress() {
   }
   return 'localhost';
 }
-const IP = getLocalIPAddress();
+// const IP = getLocalIPAddress();
+const IP = "anonychat-sudhir.vercel.app"
 
 // ✅ Enable CORS for all routes and origins
 app.use(cors({
-  origin: `http://${IP}:5500`, // or '*' for all, but safer to restrict
+  origin: `http://${IP}`, // or '*' for all, but safer to restrict
   methods: ['GET', 'POST'],
   credentials: true
 }));

@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const joinContainer = document.getElementById('join-container');
     const roomCodeInput = document.getElementById('room-code');
 
-    const IP = "192.168.67.223"; // Replace with your local IP address
-    const ws = new WebSocket(`ws://${IP}:3000`);
+    const IP = "anonychat-no20.onrender.com"; // Replace with your local IP address
+    const ws = new WebSocket(`ws://anonychat-no20.onrender.com`);
 
     // Create new room
     createChatBtn.addEventListener('click', async () => {
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('roomId', roomId);
         // http://127.0.0.1:5000/api/customers
         try {
-            await fetch(`http://${IP}:3000/save-room`, {
+            await fetch(`http://${IP}/save-room`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (enteredCode.length === 5 && !isNaN(enteredCode)) {
                 try {
-                    const res = await fetch(`http://${IP}:3000/get-room`);
+                    const res = await fetch(`http://${IP}/get-room`);
                     const data = await res.json();
                     console.log('📥 Current room ID:', data);
                     if (data.roomId === enteredCode) {

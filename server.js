@@ -30,7 +30,7 @@ const IP = "anonychat-sudhir.vercel.app"
 
 // ✅ Enable CORS for all routes and origins
 app.use(cors({
-  origin: `http://${IP}`, // or '*' for all, but safer to restrict
+  origin: `https://${IP}`, // or '*' for all, but safer to restrict
   methods: ['GET', 'POST'],
   credentials: true
 }));
@@ -84,5 +84,5 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(3000, () => {
-  console.log(`✅ Server running at http://${IP}:3000`);
+  console.log(`✅ Server running at http://${IP}`);
 });

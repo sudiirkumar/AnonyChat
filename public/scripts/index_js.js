@@ -11,9 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     createChatBtn.addEventListener('click', async () => {
         const roomId = Math.floor(10000 + Math.random() * 90000).toString();
         localStorage.setItem('roomId', roomId);
-        // http://127.0.0.1:5000/api/customers
+        // https://127.0.0.1:5000/api/customers
         try {
-            await fetch(`http://${IP}/save-room`, {
+            await fetch(`https://${IP}/save-room`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (enteredCode.length === 5 && !isNaN(enteredCode)) {
                 try {
-                    const res = await fetch(`http://${IP}/get-room`);
+                    const res = await fetch(`https://${IP}/get-room`);
                     const data = await res.json();
                     console.log('📥 Current room ID:', data);
                     if (data.roomId === enteredCode) {

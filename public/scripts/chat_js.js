@@ -223,7 +223,7 @@ leaveButton.addEventListener("click", () => {
 deleteButton.addEventListener("click", async () => {
     if (confirm("Are you sure you want to delete this chat?")) {
         try {
-            const response = await fetch(`http://${IP}/delete-room`, {
+            const response = await fetch(`https://${IP}/delete-room`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });

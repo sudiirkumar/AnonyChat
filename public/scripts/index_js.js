@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const joinContainer = document.getElementById('join-container');
     const roomCodeInput = document.getElementById('room-code');
 
-    const IP = "192.168.1.47"; // Replace with your local IP address
+    const IP = "192.168.67.223"; // Replace with your local IP address
     const ws = new WebSocket(`ws://${IP}:3000`);
 
     // Create new room

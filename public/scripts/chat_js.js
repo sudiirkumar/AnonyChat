@@ -8,7 +8,7 @@ const deleteButton = document.querySelector(".delete-chat");
 const fileInput = document.getElementById("file-input");
 const toggleVanish = document.getElementById("toggle-delete");
 
-const IP = "192.168.1.47"; // Replace with your local IP address
+const IP = "192.168.67.223"; // Replace with your local IP address
 const ws = new WebSocket(`ws://${IP}:3000`);
 
 //generate SECRET_KEY from roomId
